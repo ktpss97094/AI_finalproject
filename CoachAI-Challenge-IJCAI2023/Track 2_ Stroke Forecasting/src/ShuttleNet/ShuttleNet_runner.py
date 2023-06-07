@@ -93,7 +93,7 @@ def shotGen_trainer(data_loader, encoder, decoder, criterion, encoder_optimizer,
 
             total_instance += len(target_shot)
 
-            loss_shot = criterion['entropy'](output_shot_logits, target_shot)
+            loss_shot = criterion['entropy'](output_shot_logits, target_shot.to(torch.int64))
             loss_area = Gaussian2D_loss(output_xy, gold_xy)
 
             loss = loss_shot + loss_area
