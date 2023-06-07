@@ -6,7 +6,6 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm
 
-
 def set_seed(seed_value):
     torch.manual_seed(seed_value)
     torch.cuda.manual_seed(seed_value)
