@@ -93,6 +93,6 @@ class StrokeEvaluator:
 
 
 if __name__ == "__main__":
-    path = "./model/"
+    path = "./data/"
     stroke_evaluator = StrokeEvaluator(path=path)
     print("Evaluation Done")
