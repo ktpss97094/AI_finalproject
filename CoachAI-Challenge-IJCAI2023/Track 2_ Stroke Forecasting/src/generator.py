@@ -69,9 +69,9 @@ if __name__ == "__main__":
         # store the prediction results
         for sample_id in range(len(generated_area)):
             for ball_round in range(len(generated_area[0])):
-                performance_log.write(f"{rally_id},{sample_id},{ball_round+config['encode_length']+1},{generated_area[sample_id][ball_round][0]},{generated_area[sample_id][ball_round][1]},")
+                performance_log.write(f"{rally_id},{sample_id},{ball_round+config['encode_length']+1},{generated_area[sample_id][ball_round][0]:.6f},{generated_area[sample_id][ball_round][1]:.6f},")
                 for shot_id, shot_type_logits in enumerate(generated_shot[sample_id][ball_round]):
-                    performance_log.write(f"{shot_type_logits}")
+                    performance_log.write(f"{shot_type_logits:.6f}")
                     if shot_id != len(generated_shot[sample_id][ball_round]) - 1:
                         performance_log.write(",")
                 performance_log.write("\n")

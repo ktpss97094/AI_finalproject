@@ -25,9 +25,7 @@ class StrokeEvaluator:
         converted_type_probs = []
         for n, row in self.prediction.iterrows():
             # round to 5 decimals to prevent minor computation error
-            print("---------------------------------------------------")
-            print(type(self.prediction.iloc[n][self.type_list].sum()))
-            print("---------------------------------------------------")
+            
             if round(self.prediction.iloc[n][self.type_list].sum(), 5) != 1:
                 converted_type_probs.append(self.softmax(row[self.type_list].values))
             else:
