@@ -71,7 +71,7 @@ class ShotGenDecoder(nn.Module):
 
         self.gated_fusion = GatedFusionLayer(d_model, d_model, config['encode_length'], config['max_ball_round']+1)
 
-    def forward(self, input_shot, input_x, input_y, input_player, encode_local_output, encode_global_A, encode_global_B, trg_mask=None, return_attns=False):
+    def forward(self, input_shot, input_x, input_y, input_player, encode_local_output, encode_global_A, encode_global_B, input_player_location_x, input_player_location_y, trg_mask=None, return_attns=False):
         decoder_self_attention_list, decoder_encoder_self_attention_list = [], []
 
         # (32, 67, 2)
@@ -147,12 +147,12 @@ class ShotGenPredictor(nn.Module):
         )
         self.player_embedding = PlayerEmbedding(config['player_num'], config['player_dim'])
 
-    def forward(self, input_shot, input_x, input_y, input_player, encode_local_output, encode_global_A, encode_global_B, target_player, return_attns=False):
+    def forward(self, input_shot, input_x, input_y, input_player, encode_local_output, encode_global_A, encode_global_B, target_player, input_player_location_x, input_player_location_y, return_attns=False):
         embedded_target_player = self.player_embedding(target_player)
         if return_attns:
             decode_output, decoder_self_attention_list, decoder_encoder_self_attention_list, disentangled_weight_local = self.shotgen_decoder(input_shot, input_x, input_y, input_player, encode_local_output, encode_global_A, encode_global_B, return_attns=return_attns)
         else:
-            decode_output = self.shotgen_decoder(input_shot, input_x, input_y, input_player, encode_local_output, encode_global_A, encode_global_B, return_attns)
+            decode_output = self.shotgen_decoder(input_shot, input_x, input_y, input_player, encode_local_output, encode_global_A, encode_global_B, input_player_location_x, input_player_location_y, return_attns)
         
         decode_output = (decode_output + embedded_target_player)
 
@@ -186,7 +186,7 @@ class ShotGenEncoder(nn.Module):
         self.global_layer = EncoderLayer(d_model, d_inner, n_heads, d_k, d_v, dropout=dropout)
         self.local_layer = EncoderLayer(d_model, d_inner, n_heads, d_k, d_v, dropout=dropout)
 
-    def forward(self, input_shot, input_x, input_y, input_player, src_mask=None, return_attns=False):
+    def forward(self, input_shot, input_x, input_y, input_player, input_player_location_x, input_player_location_y, src_mask=None, return_attns=False):
         enc_slf_attn_list = []
 
         area = torch.cat((input_x.unsqueeze(-1), input_y.unsqueeze(-1)), dim=-1).float()

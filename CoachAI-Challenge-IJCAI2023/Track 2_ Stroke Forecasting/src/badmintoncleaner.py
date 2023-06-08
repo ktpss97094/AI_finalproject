@@ -12,12 +12,12 @@ class BadmintonDataset(Dataset):
     def __init__(self, matches, config):
         super().__init__()
         self.max_ball_round = config['max_ball_round']
-        group = matches[['rally_id', 'ball_round', 'type', 'landing_x', 'landing_y', 'player', 'set']].groupby('rally_id').apply(lambda r: (r['ball_round'].values, r['type'].values, r['landing_x'].values, r['landing_y'].values, r['player'].values, r['set'].values))
+        group = matches[['rally_id', 'ball_round', 'type', 'landing_x', 'landing_y', 'player_location_x', 'player_location_y', 'player', 'set']].groupby('rally_id').apply(lambda r: (r['ball_round'].values, r['type'].values, r['landing_x'].values, r['landing_y'].values, r['player_location_x'].values, r['player_location_y'].values, r['player'].values, r['set'].values))
 
         self.sequences, self.rally_ids = {}, []
         for i, rally_id in enumerate(group.index):
-            ball_round, shot_type, landing_x, landing_y, player, sets = group[rally_id]
-            self.sequences[rally_id] = (ball_round, shot_type, landing_x, landing_y, player, sets)
+            ball_round, shot_type, landing_x, landing_y, player_location_x, player_location_y, player, sets = group[rally_id]
+            self.sequences[rally_id] = (ball_round, shot_type, landing_x, landing_y, player_location_x, player_location_y, player, sets)
             self.rally_ids.append(rally_id)
 
     def __len__(self):
@@ -25,7 +25,7 @@ class BadmintonDataset(Dataset):
     
     def __getitem__(self, index):
         rally_id = self.rally_ids[index]
-        ball_round, shot_type, landing_x, landing_y, player, sets = self.sequences[rally_id]
+        ball_round, shot_type, landing_x, landing_y, player_location_x, player_location_y, player, sets = self.sequences[rally_id]
 
         pad_input_shot = np.full(self.max_ball_round, fill_value=PAD, dtype=int)
         pad_input_x = np.full(self.max_ball_round, fill_value=PAD, dtype=float)
@@ -35,6 +35,8 @@ class BadmintonDataset(Dataset):
         pad_output_x = np.full(self.max_ball_round, fill_value=PAD, dtype=float)
         pad_output_y = np.full(self.max_ball_round, fill_value=PAD, dtype=float)
         pad_output_player = np.full(self.max_ball_round, fill_value=PAD, dtype=int)
+        pad_player_location_x = np.full(self.max_ball_round, fill_value=PAD, dtype=float)
+        pad_player_location_y = np.full(self.max_ball_round, fill_value=PAD, dtype=float)
 
         # pad or trim based on the max ball round
         if len(ball_round) > self.max_ball_round:
@@ -48,6 +50,8 @@ class BadmintonDataset(Dataset):
             pad_output_x[:] = landing_x[1::1][:rally_len]
             pad_output_y[:] = landing_y[1::1][:rally_len]
             pad_output_player[:] = player[1::1][:rally_len]
+            pad_player_location_x[:] = player_location_x[0:-1:1][:rally_len]
+            pad_player_location_y[:] = player_location_y[0:-1:1][:rally_len]
         else:
             rally_len = len(ball_round) - 1                                                     # 0 ~ (n-2)
             
@@ -59,10 +63,14 @@ class BadmintonDataset(Dataset):
             pad_output_x[:rally_len] = landing_x[1::1]
             pad_output_y[:rally_len] = landing_y[1::1]
             pad_output_player[:rally_len] = player[1::1]
+            pad_player_location_x[:rally_len] = player_location_x[0:-1:1]
+            pad_player_location_y[:rally_len] = player_location_y[0:-1:1]
+
 
         return (pad_input_shot, pad_input_x, pad_input_y, pad_input_player,
                 pad_output_shot, pad_output_x, pad_output_y, pad_output_player,
-                rally_len, sets[0])
+                rally_len, sets[0],
+                pad_player_location_x, pad_player_location_y)
 
 
 def prepare_dataset(config):

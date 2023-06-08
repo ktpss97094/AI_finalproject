@@ -64,6 +64,7 @@ def shotGen_trainer(data_loader, encoder, decoder, criterion, encoder_optimizer,
             batch_input_shot, batch_input_x, batch_input_y, batch_input_player = item[0].to(device), item[1].to(device), item[2].to(device), item[3].to(device)
             batch_target_shot, batch_target_x, batch_target_y, batch_target_player = item[4].to(device), item[5].to(device), item[6].to(device), item[7].to(device)
             seq_len, seq_sets = item[8].to(device), item[9].to(device)
+            batch_player_location_x, batch_player_location_y = item[10].to(device), item[11].to(device)
 
             encoder_optimizer.zero_grad()
             decoder_optimizer.zero_grad()
@@ -73,10 +74,12 @@ def shotGen_trainer(data_loader, encoder, decoder, criterion, encoder_optimizer,
             input_x = batch_input_x[:, :encode_length]
             input_y = batch_input_y[:, :encode_length]
             input_player = batch_input_player[:, :encode_length]
+            input_player_location_x = batch_player_location_x[:, :encode_length]
+            input_player_location_y = batch_player_location_y[:, :encode_length]
             # encode_local_output的shape為(32, 3, 32)
             # encode_global_A的shape為(32, 2, 32)
             # encode_global_B的shape為(32, 1, 32)
-            encode_local_output, encode_global_A, encode_global_B = encoder(input_shot, input_x, input_y, input_player)
+            encode_local_output, encode_global_A, encode_global_B = encoder(input_shot, input_x, input_y, input_player, input_player_location_x, input_player_location_y)
             
             # output_xy的shape為(32, 67, 5)
             # output_shot_logits的shape為(32, 67, 11)
@@ -89,7 +92,9 @@ def shotGen_trainer(data_loader, encoder, decoder, criterion, encoder_optimizer,
             target_x = batch_target_x[:, encode_length:]
             target_y = batch_target_y[:, encode_length:]
             target_player = batch_target_player[:, encode_length:]
-            output_xy, output_shot_logits = decoder(input_shot, input_x, input_y, input_player, encode_local_output, encode_global_A, encode_global_B, target_player)
+            input_player_location_x = batch_player_location_x[:, encode_length:]
+            input_player_location_y = batch_player_location_y[:, encode_length:]
+            output_xy, output_shot_logits = decoder(input_shot, input_x, input_y, input_player, encode_local_output, encode_global_A, encode_global_B, target_player, input_player_location_x, input_player_location_y)
             
             # prev_output_xy, prev_output_shot_logits = output_xy, output_shot_logits
 
