@@ -74,6 +74,7 @@ class ShotGenDecoder(nn.Module):
     def forward(self, input_shot, input_x, input_y, input_player, encode_local_output, encode_global_A, encode_global_B, trg_mask=None, return_attns=False):
         decoder_self_attention_list, decoder_encoder_self_attention_list = [], []
 
+        # (32, 67, 2)
         area = torch.cat((input_x.unsqueeze(-1), input_y.unsqueeze(-1)), dim=-1).float()
 
         # split player only for masking
@@ -85,9 +86,14 @@ class ShotGenDecoder(nn.Module):
         trg_global_A_mask = get_pad_mask(mask_A) & get_subsequent_mask(mask_A)
         trg_global_B_mask = get_pad_mask(mask_B) & get_subsequent_mask(mask_B)
         
-        embedded_area = F.relu(self.area_embedding(area))
-        embedded_shot = self.shot_embedding(input_shot)
-        embedded_player = self.player_embedding(input_player)
+        embedded_area = F.relu(self.area_embedding(area))  # (32, 67, 32)
+        embedded_shot = self.shot_embedding(input_shot)  # (32, 67, 32)
+        embedded_player = self.player_embedding(input_player)  # (32, 67, 32)
+
+        # if prev_output_xy != None:
+        #     embedded_area += prev_output_xy
+        # if prev_output_shot_logits != None:
+        #     embedded_shot += prev_output_shot_logits
 
         h_a = embedded_area + embedded_player
         h_s = embedded_shot + embedded_player

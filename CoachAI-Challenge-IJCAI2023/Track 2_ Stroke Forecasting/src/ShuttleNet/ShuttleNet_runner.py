@@ -57,7 +57,10 @@ def shotGen_trainer(data_loader, encoder, decoder, criterion, encoder_optimizer,
         total_loss, total_shot_loss, total_area_loss = 0, 0, 0
         total_instance = 0
 
+        # prev_output_xy, prev_output_shot_logits = None, None
+
         for loader_idx, item in enumerate(data_loader):
+            # seq_len與seq_sets的shape為(32)，其他皆為(32, 70)
             batch_input_shot, batch_input_x, batch_input_y, batch_input_player = item[0].to(device), item[1].to(device), item[2].to(device), item[3].to(device)
             batch_target_shot, batch_target_x, batch_target_y, batch_target_player = item[4].to(device), item[5].to(device), item[6].to(device), item[7].to(device)
             seq_len, seq_sets = item[8].to(device), item[9].to(device)
@@ -65,12 +68,19 @@ def shotGen_trainer(data_loader, encoder, decoder, criterion, encoder_optimizer,
             encoder_optimizer.zero_grad()
             decoder_optimizer.zero_grad()
 
+            # input_shot、input_x、input_y與input_player的shape皆為(32, encode_length) = (32, 3)
             input_shot = batch_input_shot[:, :encode_length]
             input_x = batch_input_x[:, :encode_length]
             input_y = batch_input_y[:, :encode_length]
             input_player = batch_input_player[:, :encode_length]
+            # encode_local_output的shape為(32, 3, 32)
+            # encode_global_A的shape為(32, 2, 32)
+            # encode_global_B的shape為(32, 1, 32)
             encode_local_output, encode_global_A, encode_global_B = encoder(input_shot, input_x, input_y, input_player)
-
+            
+            # output_xy的shape為(32, 67, 5)
+            # output_shot_logits的shape為(32, 67, 11)
+            # 其他的shape皆為(32, 67) = (32, 67)
             input_shot = batch_input_shot[:, encode_length:]
             input_x = batch_input_x[:, encode_length:]
             input_y = batch_input_y[:, encode_length:]
@@ -81,15 +91,17 @@ def shotGen_trainer(data_loader, encoder, decoder, criterion, encoder_optimizer,
             target_player = batch_target_player[:, encode_length:]
             output_xy, output_shot_logits = decoder(input_shot, input_x, input_y, input_player, encode_local_output, encode_global_A, encode_global_B, target_player)
             
+            # prev_output_xy, prev_output_shot_logits = output_xy, output_shot_logits
+
             pad_mask = (input_shot!=PAD)
-            output_shot_logits = output_shot_logits[pad_mask]
-            target_shot = target_shot[pad_mask]
-            output_xy = output_xy[pad_mask]
-            target_x = target_x[pad_mask]
-            target_y = target_y[pad_mask]
+            output_shot_logits = output_shot_logits[pad_mask]  # (274, 11)
+            target_shot = target_shot[pad_mask]  # (274)
+            output_xy = output_xy[pad_mask]  # (274, 5)
+            target_x = target_x[pad_mask]  # (274)
+            target_y = target_y[pad_mask]  # (274)
 
             _, output_shot = torch.topk(output_shot_logits, 1)  # 這行完全沒用?
-            gold_xy = torch.cat((target_x.unsqueeze(-1), target_y.unsqueeze(-1)), dim=-1).to(device, dtype=torch.float)
+            gold_xy = torch.cat((target_x.unsqueeze(-1), target_y.unsqueeze(-1)), dim=-1).to(device, dtype=torch.float)  # (274, 2)
 
             total_instance += len(target_shot)
 

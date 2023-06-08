@@ -71,6 +71,7 @@ def prepare_dataset(config):
     test_matches = pd.read_csv(f"{config['data_folder']}test_given.csv")
 
     # encode shot type
+    # 把type的字串編碼成0~9的整數值儲存為code_type。unique_type為10種shot type的字串
     codes_type, uniques_type = pd.factorize(train_matches['type'])
     train_matches['type'] = codes_type + 1                                # Reserve code 0 for paddings
     val_matches['type'] = val_matches['type'].apply(lambda x: list(uniques_type).index(x)+1)
