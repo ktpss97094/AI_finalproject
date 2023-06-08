@@ -55,25 +55,35 @@ class StrokeEvaluator:
             converted_true_types = torch.tensor(converted_true_types)
             ground_truth_len = len(true_ball_round)
             
-            for sample in range(6):      # total 6 samples
+
+            for sample in range(6):
                 start_index = sample * ground_truth_len
                 # compute area score
-                area_score = self.compute_mae_metric(landing_x[start_index:start_index+ground_truth_len], landing_y[start_index:start_index+ground_truth_len], true_landing_x, true_landing_y)
+                pre_landing_x = landing_x[start_index:start_index+ground_truth_len]
+                pre_landing_y = landing_y[start_index:start_index+ground_truth_len]
+
+                if (len(pre_landing_x) == len(true_landing_x)):
+                    area_score = self.compute_mae_metric(
+                        pre_landing_x,
+                        pre_landing_y,
+                        true_landing_x,
+                        true_landing_y
+                    )
 
                 # compute type score
-                prediction_type = []
-                for shot_index in range(start_index, start_index+ground_truth_len):
-                    prediction_type.append([short_service[shot_index], net_shot[shot_index], lob[shot_index], clear[shot_index], drop[shot_index], push_rush[shot_index], smash[shot_index], defensive_shot[shot_index], drive[shot_index], long_service[shot_index]])
-                prediction_type = torch.tensor(prediction_type)
-                type_score = self.ce_loss(torch.log(prediction_type), converted_true_types).item()  # need to perform log operation
-                if math.isinf(type_score):
-                    type_score = 1e3        # modify type_score to 1000 if the prediction prob is uniform, which causes inf
+                    prediction_type = []
+                    for shot_index in range(start_index, start_index+ground_truth_len):
+                        prediction_type.append([short_service[shot_index], net_shot[shot_index], lob[shot_index], clear[shot_index], drop[shot_index], push_rush[shot_index], smash[shot_index], defensive_shot[shot_index], drive[shot_index], long_service[shot_index]])
+                    prediction_type = torch.tensor(prediction_type)
+                    type_score = self.ce_loss(torch.log(prediction_type), converted_true_types).item()  # need to perform log operation
+                    if math.isinf(type_score):
+                        type_score = 1e3        # modify type_score to 1000 if the prediction prob is uniform, which causes inf
 
-                # check if the current score better than the previous best score
-                if area_score + type_score < best_sample_score:
-                    best_sample_score = area_score + type_score
-                    best_ce_score = type_score
-                    best_mae_score = area_score
+                    # check if the current score better than the previous best score
+                    if area_score + type_score < best_sample_score:
+                        best_sample_score = area_score + type_score
+                        best_ce_score = type_score
+                        best_mae_score = area_score
 
             rally_ids.append(rally_id), rally_score.append(best_sample_score), rally_ce_score.append(best_ce_score), rally_mae_score.append(best_mae_score)
             total_score += best_sample_score
@@ -83,16 +93,21 @@ class StrokeEvaluator:
         rally_ids.append('total'), rally_score.append(round(total_score/len(group.index), 5)), rally_ce_score.append(round(total_ce_score/len(group.index), 5)), rally_mae_score.append(round(total_mae_score/len(group.index), 5))
         record_df = pd.DataFrame({'type': rally_ce_score, 'area': rally_mae_score, 'overall': rally_score})
         record_df.index = rally_ids
-        record_df.to_csv("record_score.csv")
+        record_df.to_csv(path + "record_score.csv")
     
     def compute_mae_metric(self, landing_x, landing_y, true_landing_x, true_landing_y):
-        prediction_area = torch.tensor([[x, y] for x, y in zip(landing_x, landing_y)])
-        true_area = torch.tensor([[x, y] for x, y in zip(true_landing_x, true_landing_y)])
+        # prediction_area = torch.tensor([[x, y] for x, y in zip(landing_x, landing_y)])
+        # true_area = torch.tensor([[x, y] for x, y in zip(true_landing_x, true_landing_y)])
+        prediction_area = torch.tensor([landing_x, landing_y])
+        true_area = torch.tensor([true_landing_x, true_landing_y])
+        # print("preiction: \n", prediction_area)
+        # print("true: \n", true_area)
         area_score = self.l1_loss(prediction_area, true_area)
         return area_score.item()
+        
 
 
 if __name__ == "__main__":
-    path = "./data/"
+    path = "../data/"
     stroke_evaluator = StrokeEvaluator(path=path)
     print("Evaluation Done")
