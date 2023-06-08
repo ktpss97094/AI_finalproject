@@ -150,8 +150,10 @@ def shotgen_generator(given_seq, encoder, decoder, config, samples, device):
         input_x = given_seq['given_x'][:encode_length].unsqueeze(0)
         input_y = given_seq['given_y'][:encode_length].unsqueeze(0)
         input_player = given_seq['given_player'][:encode_length].unsqueeze(0)
+        input_player_location_x = given_seq['player_location_x'][:encode_length].unsqueeze(0)
+        input_player_location_y = given_seq['player_location_y'][:encode_length].unsqueeze(0)
 
-        encode_local_output, encode_global_A, encode_global_B = encoder(input_shot, input_x, input_y, input_player)
+        encode_local_output, encode_global_A, encode_global_B = encoder(input_shot, input_x, input_y, input_player, input_player_location_x, input_player_location_y)
 
         for sample_id in range(samples):
             current_generated_shot, current_generated_area = [], []
@@ -170,7 +172,7 @@ def shotgen_generator(given_seq, encoder, decoder, config, samples, device):
                     input_player = torch.cat((input_player, prev_player), dim=-1)
                 target_player = given_seq['target_player'][seq_idx-encode_length].unsqueeze(0).unsqueeze(0)
 
-                output_xy, output_shot_logits = decoder(input_shot, input_x, input_y, input_player, encode_local_output, encode_global_A, encode_global_B, target_player)
+                output_xy, output_shot_logits = decoder(input_shot, input_x, input_y, input_player, encode_local_output, encode_global_A, encode_global_B, target_player, input_player_location_x, input_player_location_y)
 
                 # sample area coordinates
                 sx = torch.exp(output_xy[:, -1, 2]) #sx

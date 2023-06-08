@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     for rally_id in tqdm(testing_rallies):
         # read data
-        selected_matches = val_matches.loc[(val_matches['rally_id'] == rally_id)][['rally_id', 'type', 'landing_x', 'landing_y', 'player', 'rally_length']].reset_index(drop=True)
+        selected_matches = val_matches.loc[(val_matches['rally_id'] == rally_id)][['rally_id', 'type', 'landing_x', 'landing_y', 'player', 'rally_length', 'player_location_x', 'player_location_y']].reset_index(drop=True)
         
         generated_length = selected_matches['rally_length'][0]      # fetch the length of the current rally
         players = [selected_matches['player'][0], selected_matches['player'][1]]
@@ -57,6 +57,8 @@ if __name__ == "__main__":
             'given_shot': torch.tensor(selected_matches['type'].values).to(device),
             'given_x': torch.tensor(selected_matches['landing_x'].values).to(device),
             'given_y': torch.tensor(selected_matches['landing_y'].values).to(device),
+            'player_location_x': torch.tensor(selected_matches['player_location_x'].values).to(device),
+            'player_location_y': torch.tensor(selected_matches['player_location_x'].values).to(device),
             'target_player': target_players.to(device),
             'rally_length': generated_length
         }
