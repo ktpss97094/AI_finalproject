@@ -25,6 +25,9 @@ class StrokeEvaluator:
         converted_type_probs = []
         for n, row in self.prediction.iterrows():
             # round to 5 decimals to prevent minor computation error
+            print("---------------------------------------------------")
+            print(type(self.prediction.iloc[n][self.type_list].sum()))
+            print("---------------------------------------------------")
             if round(self.prediction.iloc[n][self.type_list].sum(), 5) != 1:
                 converted_type_probs.append(self.softmax(row[self.type_list].values))
             else:
@@ -98,8 +101,8 @@ class StrokeEvaluator:
     def compute_mae_metric(self, landing_x, landing_y, true_landing_x, true_landing_y):
         # prediction_area = torch.tensor([[x, y] for x, y in zip(landing_x, landing_y)])
         # true_area = torch.tensor([[x, y] for x, y in zip(true_landing_x, true_landing_y)])
-        prediction_area = torch.tensor([landing_x, landing_y])
-        true_area = torch.tensor([true_landing_x, true_landing_y])
+        prediction_area = torch.tensor([landing_x, landing_y]).T
+        true_area = torch.tensor([true_landing_x, true_landing_y]).T
         # print("preiction: \n", prediction_area)
         # print("true: \n", true_area)
         area_score = self.l1_loss(prediction_area, true_area)
