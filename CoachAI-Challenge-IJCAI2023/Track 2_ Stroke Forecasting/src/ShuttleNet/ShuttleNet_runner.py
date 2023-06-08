@@ -88,7 +88,7 @@ def shotGen_trainer(data_loader, encoder, decoder, criterion, encoder_optimizer,
             target_x = target_x[pad_mask]
             target_y = target_y[pad_mask]
 
-            _, output_shot = torch.topk(output_shot_logits, 1)
+            _, output_shot = torch.topk(output_shot_logits, 1)  # 這行完全沒用?
             gold_xy = torch.cat((target_x.unsqueeze(-1), target_y.unsqueeze(-1)), dim=-1).to(device, dtype=torch.float)
 
             total_instance += len(target_shot)
