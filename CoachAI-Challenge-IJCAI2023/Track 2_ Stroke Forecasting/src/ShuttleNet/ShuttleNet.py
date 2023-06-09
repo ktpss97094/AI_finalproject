@@ -150,7 +150,7 @@ class ShotGenPredictor(nn.Module):
     def forward(self, input_shot, input_x, input_y, input_player, encode_local_output, encode_global_A, encode_global_B, target_player, input_player_location_x, input_player_location_y, return_attns=False):
         embedded_target_player = self.player_embedding(target_player)
         if return_attns:
-            decode_output, decoder_self_attention_list, decoder_encoder_self_attention_list, disentangled_weight_local = self.shotgen_decoder(input_shot, input_x, input_y, input_player, encode_local_output, encode_global_A, encode_global_B, return_attns=return_attns)
+            decode_output, decoder_self_attention_list, decoder_encoder_self_attention_list, disentangled_weight_local = self.shotgen_decoder(input_shot, input_x, input_y, input_player, encode_local_output, encode_global_A, encode_global_B, input_player_location_x, input_player_location_y, return_attns=return_attns)
         else:
             decode_output = self.shotgen_decoder(input_shot, input_x, input_y, input_player, encode_local_output, encode_global_A, encode_global_B, input_player_location_x, input_player_location_y, return_attns)
         
