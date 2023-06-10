@@ -205,7 +205,7 @@ class ShotGenEncoder(nn.Module):
 
         # 方程式1 ############################
         h_a = embedded_area + embedded_player_area * 0.1 + embedded_player
-        h_s = embedded_shot + embedded_player_area * 0.1 + embedded_player
+        h_s = embedded_shot + embedded_player_area * 0.1 + embedded_player 
 
         # split player
         h_a_A = h_a[:, ::2]
