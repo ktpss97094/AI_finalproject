@@ -52,6 +52,7 @@ class ShotGenDecoder(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.area_embedding = nn.Linear(2, config['area_dim'])
+        self.player_area_embedding = nn.Linear(2, config['area_dim'])
         self.shot_embedding = ShotEmbedding(config['shot_num'], config['shot_dim'])
         self.player_embedding = PlayerEmbedding(config['player_num'], config['player_dim'])
 
@@ -76,6 +77,7 @@ class ShotGenDecoder(nn.Module):
 
         # (32, 67, 2)
         area = torch.cat((input_x.unsqueeze(-1), input_y.unsqueeze(-1)), dim=-1).float()
+        player_area = torch.cat((input_player_location_x.unsqueeze(-1), input_player_location_y.unsqueeze(-1)), dim=-1).float()
 
         # split player only for masking
         mask_A = input_shot[:, ::2]
@@ -87,6 +89,7 @@ class ShotGenDecoder(nn.Module):
         trg_global_B_mask = get_pad_mask(mask_B) & get_subsequent_mask(mask_B)
         
         embedded_area = F.relu(self.area_embedding(area))  # (32, 67, 32)
+        embedded_player_area = F.relu(self.player_area_embedding(player_area))
         embedded_shot = self.shot_embedding(input_shot)  # (32, 67, 32)
         embedded_player = self.player_embedding(input_player)  # (32, 67, 32)
 
@@ -95,8 +98,10 @@ class ShotGenDecoder(nn.Module):
         # if prev_output_shot_logits != None:
         #     embedded_shot += prev_output_shot_logits
 
-        h_a = embedded_area + embedded_player
-        h_s = embedded_shot + embedded_player
+        # h_a = embedded_area + embedded_player
+        # h_s = embedded_shot + embedded_player
+        h_a = embedded_area + embedded_player_area + embedded_player
+        h_s = embedded_shot + embedded_player_area + embedded_player
 
         # split player
         h_a_A = h_a[:, ::2]
@@ -169,6 +174,7 @@ class ShotGenEncoder(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.area_embedding = nn.Linear(2, config['area_dim'])
+        self.player_area_embedding = nn.Linear(2, config['area_dim'])
         self.shot_embedding = ShotEmbedding(config['shot_num'], config['shot_dim'])
         self.player_embedding = PlayerEmbedding(config['player_num'], config['player_dim'])
 
@@ -190,14 +196,16 @@ class ShotGenEncoder(nn.Module):
         enc_slf_attn_list = []
 
         area = torch.cat((input_x.unsqueeze(-1), input_y.unsqueeze(-1)), dim=-1).float()
-        
+        player_area = torch.cat((input_player_location_x.unsqueeze(-1), input_player_location_y.unsqueeze(-1)), dim=-1).float()
+
         embedded_area = F.relu(self.area_embedding(area))
+        embedded_player_area = F.relu(self.player_area_embedding(player_area))
         embedded_shot = self.shot_embedding(input_shot)
         embedded_player = self.player_embedding(input_player)
         
         # 方程式1 ############################
-        h_a = embedded_area + embedded_player
-        h_s = embedded_shot + embedded_player
+        h_a = embedded_area + embedded_player_area + embedded_player
+        h_s = embedded_shot + embedded_player_area + embedded_player
 
         # split player
         h_a_A = h_a[:, ::2]
