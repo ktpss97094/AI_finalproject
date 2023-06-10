@@ -274,8 +274,10 @@ def BO_function(batch_size, lr, epochs, area_num, dim):
     generate()
     tmp = evaluation()
     score = (1/tmp.compute_metrics()) * 100
+    # 因為越小越好 所以取倒數
+    # 怕因為精度問題 所以 * 100
 
-    return score
+    return score 
 
 
 if __name__ == "__main__":
