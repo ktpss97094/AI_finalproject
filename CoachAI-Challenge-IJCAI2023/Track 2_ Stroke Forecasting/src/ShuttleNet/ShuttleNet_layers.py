@@ -9,11 +9,51 @@ class EncoderLayer(nn.Module):
     def __init__(self, d_model, d_inner, n_head, d_k, d_v, dropout=0.1):
         super().__init__()
         self.disentangled_attention = TypeAreaMultiHeadAttention(n_head, d_model, d_k, d_v, dropout=dropout)
+        
+        self.dim3_Conv_F1_1 = nn.Conv1d(3, 64, 3, dilation=1, padding='same').to('cuda')
+        self.dim3_Conv_F1_2 = nn.Conv1d(3, 64, 3, dilation=1, padding='same').to('cuda')
+        self.dim2_Conv_F1_1 = nn.Conv1d(2, 64, 3, dilation=1, padding='same').to('cuda')
+        self.dim2_Conv_F1_2 = nn.Conv1d(2, 64, 3, dilation=1, padding='same').to('cuda')
+        self.dim1_Conv_F1_1 = nn.Conv1d(1, 64, 3, dilation=1, padding='same').to('cuda')
+        self.dim1_Conv_F1_2 = nn.Conv1d(1, 64, 3, dilation=1, padding='same').to('cuda')
+        self.BatchNorm_F1 = nn.BatchNorm1d(64).to('cuda')
+        self.Conv_F2_1 = nn.Conv1d(64, 32, 3, dilation=2, padding='same').to('cuda')
+        self.Conv_F2_2 = nn.Conv1d(64, 32, 3, dilation=2, padding='same').to('cuda')
+        self.BatchNorm_F2 = nn.BatchNorm1d(32).to('cuda')
+        self.Conv_F3_1 = nn.Conv1d(32, 16, 3, dilation=3, padding='same').to('cuda')
+        self.Conv_F3_2 = nn.Conv1d(32, 16, 3, dilation=3, padding='same').to('cuda')
+        self.BatchNorm_F3 = nn.BatchNorm1d(16).to('cuda')
+
         self.pos_ffn = PositionwiseFeedForward(d_model, d_inner, dropout=dropout)
 
     def forward(self, encode_area, encode_shot, slf_attn_mask=None):
-        encode_output, enc_slf_attn, enc_disentangled_weight = self.disentangled_attention(encode_area, encode_area, encode_area, encode_shot, encode_shot, encode_shot, mask=slf_attn_mask)
-        encode_output = self.pos_ffn(encode_output)
+        encode_output, enc_slf_attn, enc_disentangled_weight = self.disentangled_attention(encode_area, encode_area, encode_area, encode_shot, encode_shot, encode_shot, mask=slf_attn_mask)  # (32, 2, 32)
+        
+        left_1, right_1 = None, None
+        if encode_output.shape[1] == 3:
+            left_1 = nn.Tanh()(self.dim3_Conv_F1_1(encode_output))
+            right_1 = nn.Sigmoid()(self.dim3_Conv_F1_2(encode_output))
+        elif encode_output.shape[1] == 2:
+            left_1 = nn.Tanh()(self.dim2_Conv_F1_1(encode_output))
+            right_1 = nn.Sigmoid()(self.dim2_Conv_F1_2(encode_output))
+        elif encode_output.shape[1] == 1:
+            left_1 = nn.Tanh()(self.dim1_Conv_F1_1(encode_output))
+            right_1 = nn.Sigmoid()(self.dim1_Conv_F1_2(encode_output))
+        else:
+            raise NotImplementedError('encode_output.shape[1]非3或2或1')
+        F1 = self.BatchNorm_F1(torch.mul(left_1, right_1))
+
+        left_2 = nn.Tanh()(self.Conv_F2_1(F1))
+        right_2 = nn.Sigmoid()(self.Conv_F2_2(F1))
+        F2 = self.BatchNorm_F2(torch.mul(left_2, right_2))
+
+        left_3 = nn.Tanh()(self.Conv_F3_1(F2))
+        right_3 = nn.Sigmoid()(self.Conv_F3_2(F2))
+        F3 = self.BatchNorm_F3(torch.mul(left_3, right_3))
+
+        encode_output = torch.cat((F1, F2, F3, encode_output), dim=1)
+
+        encode_output = self.pos_ffn(encode_output)  # (32, 2, 32)
         return encode_output, enc_slf_attn
 
 
