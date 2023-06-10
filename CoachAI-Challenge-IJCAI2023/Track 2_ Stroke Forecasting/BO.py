@@ -6,7 +6,6 @@ import torch
 import torch.nn as nn
 
 from bayes_opt import BayesianOptimization
-import train
 
 
 def set_seed(seed_value):
@@ -36,7 +35,18 @@ def train(max_ball_round, encode_length, batch_size, lr, epochs, shot_dim, area_
         'gpu_num': 0,  # Selected GPU number
         'data_folder': "../data",
         'model_folder': './model/'
-    }    
+    }
+
+    config['max_ball_round'] = max_ball_round
+    config['encode_length'] = encode_length
+    config['batch_size'] = batch_size
+    config['lr'] = lr
+    config['epochs'] = epochs
+    config['shot_dim'] = shot_dim
+    config['area_num'] = area_num
+    config['area_dim'] = area_dim
+    config['player_dim'] = player_dim
+    config['encode_dim'] = encode_dim
 
     model_type = config['model_type']
     set_seed(config['seed_value'])
@@ -73,4 +83,6 @@ def train(max_ball_round, encode_length, batch_size, lr, epochs, shot_dim, area_
         criterion[key].to(device)
 
     record_train_loss = shotGen_trainer(data_loader=train_dataloader, encoder=encoder, decoder=decoder, criterion=criterion, encoder_optimizer=encoder_optimizer, decoder_optimizer=decoder_optimizer, config=config, device=device)
-    draw_loss(record_train_loss, config)
+
+def BO_fuction(max_ball_round, encode_length, batch_size, lr, epochs, shot_dim, area_num, area_dim, player_dim, encode_dim):
+    
