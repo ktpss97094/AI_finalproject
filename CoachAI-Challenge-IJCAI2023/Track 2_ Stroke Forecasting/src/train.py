@@ -111,8 +111,8 @@ if __name__ == "__main__":
     encoder = ShotGenEncoder(config)
     decoder = ShotGenPredictor(config)
     encoder.area_embedding.weight = decoder.shotgen_decoder.area_embedding.weight
-    encoder.player_area_embedding.weight = nn.parameter.Parameter(torch.mul(decoder.shotgen_decoder.area_embedding.weight, 0.0001))
-    decoder.shotgen_decoder.player_area_embedding.weight = encoder.player_area_embedding.weight
+    encoder.player_area_embedding.weight = decoder.shotgen_decoder.area_embedding.weight
+    decoder.shotgen_decoder.player_area_embedding.weight = decoder.shotgen_decoder.area_embedding.weight
     encoder.shot_embedding.weight = decoder.shotgen_decoder.shot_embedding.weight
     encoder.player_embedding.weight = decoder.shotgen_decoder.player_embedding.weight
     decoder.player_embedding.weight = decoder.shotgen_decoder.player_embedding.weight
