@@ -284,7 +284,9 @@ if __name__ == "__main__":
     
     n_iter = int(sys.argv[1]) # 總共會跑 n_iter + 5 次
 
-    pbounds = { # [最低範圍, 最高範圍] 可以自己改，有想要在自己加參數也可以
+    pbounds = { 
+        # [最低範圍, 最高範圍] 可以自己改範圍
+        # 有想要再自己加參數也可以 那BO_function 跟 train()也要一起改
         
         #'max_ball_round': [69, 70],
         #'encode_length': [3, 4],
