@@ -291,7 +291,7 @@ if __name__ == "__main__":
         #'max_ball_round': [69, 70],
         #'encode_length': [3, 4],
         'batch_size': [30, 128],
-        'lr': [1e-5, 1e-2],
+        'lr': [1e-7, 1e-3],
         'epochs': [128, 256],
         'area_num': [5, 10], # 一定要>5
         'dim': [32, 64]
@@ -300,6 +300,6 @@ if __name__ == "__main__":
     shuttle_optimizer = BayesianOptimization(f = BO_function, pbounds = pbounds)
     shuttle_optimizer.maximize(n_iter = n_iter)
 
-    print("best hyperpara: \n", shuttle_optimizer.max) 
+    print("best hyperpara: \n", shuttle_optimizer.max)
     # 最後要跑train.py的時候把除了 lr 以外的都取整數
     # shuttle_optimizer.max 最好的hyperparameter
