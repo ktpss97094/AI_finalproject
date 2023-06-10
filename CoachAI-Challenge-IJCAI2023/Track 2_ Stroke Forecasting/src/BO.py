@@ -290,11 +290,11 @@ if __name__ == "__main__":
         
         #'max_ball_round': [69, 70],
         #'encode_length': [3, 4],
-        'batch_size': [30, 128],
+        'batch_size': [32, 128],
         'lr': [1e-7, 1e-3],
         'epochs': [128, 256],
         'area_num': [5, 10], # 一定要>5
-        'dim': [32, 64]
+        'dim': [32, 128]
     }
 
     shuttle_optimizer = BayesianOptimization(f = BO_function, pbounds = pbounds)
