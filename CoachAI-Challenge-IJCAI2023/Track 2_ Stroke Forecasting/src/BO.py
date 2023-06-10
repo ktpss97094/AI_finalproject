@@ -280,8 +280,10 @@ def BO_function(batch_size, lr, epochs, area_num, dim):
 
 if __name__ == "__main__":
     
-    n_iter = int(sys.argv[1])
-    pbounds = {
+    n_iter = int(sys.argv[1]) # 總共會跑 n_iter + 5 次
+
+    pbounds = { # [最低範圍, 最高範圍] 可以自己改
+        
         #'max_ball_round': [69, 70],
         #'encode_length': [3, 4],
         'batch_size': [30, 128],
@@ -294,4 +296,6 @@ if __name__ == "__main__":
     shuttle_optimizer = BayesianOptimization(f = BO_function, pbounds = pbounds)
     shuttle_optimizer.maximize(n_iter = n_iter)
 
-    print(shuttle_optimizer.max)
+    print("best hyperpara: \n", shuttle_optimizer.max) 
+    # 最後要跑train.py的時候把除了 lr 以外的都取整數 
+    # shuttle_optimizer.max 最好的hyperparameter
