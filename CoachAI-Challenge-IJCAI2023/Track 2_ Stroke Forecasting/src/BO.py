@@ -286,7 +286,7 @@ if __name__ == "__main__":
 
     pbounds = { 
         # [最低範圍, 最高範圍] 可以自己改範圍
-        # 有想要再自己加參數也可以 那BO_function 跟 train()也要一起改
+        # 有想要再自己加參數也可以 那BO_function 跟 train() 也要一起改
         
         #'max_ball_round': [69, 70],
         #'encode_length': [3, 4],
