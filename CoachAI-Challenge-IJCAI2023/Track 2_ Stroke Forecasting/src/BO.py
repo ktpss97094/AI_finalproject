@@ -291,7 +291,7 @@ if __name__ == "__main__":
         #'max_ball_round': [69, 70],
         #'encode_length': [3, 4],
         'batch_size': [30, 128],
-        'lr': [1e-2, 1e-5],
+        'lr': [1e-5, 1e-2],
         'epochs': [128, 256],
         'area_num': [5, 10], # 一定要>5
         'dim': [32, 64]
