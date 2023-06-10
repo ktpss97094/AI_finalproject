@@ -203,6 +203,9 @@ class ShotGenEncoder(nn.Module):
         embedded_shot = self.shot_embedding(input_shot)
         embedded_player = self.player_embedding(input_player)
 
+        # print(embedded_player_area)
+        # print(embedded_player_area * 0.1)
+        
         # 方程式1 ############################
         h_a = embedded_area + embedded_player_area * 0.1 + embedded_player
         h_s = embedded_shot + embedded_player_area * 0.1 + embedded_player
