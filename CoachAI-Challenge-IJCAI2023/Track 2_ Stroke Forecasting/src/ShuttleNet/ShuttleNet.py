@@ -98,10 +98,10 @@ class ShotGenDecoder(nn.Module):
         # if prev_output_shot_logits != None:
         #     embedded_shot += prev_output_shot_logits
 
-        # h_a = embedded_area + embedded_player
-        # h_s = embedded_shot + embedded_player
-        h_a = embedded_area + embedded_player_area + embedded_player
-        h_s = embedded_shot + embedded_player_area + embedded_player
+        h_a = embedded_area + embedded_player
+        h_s = embedded_shot + embedded_player
+        # h_a = embedded_area + embedded_player_area * 0.1 + embedded_player
+        # h_s = embedded_shot + embedded_player_area * 0.1 + embedded_player
 
         # split player
         h_a_A = h_a[:, ::2]
@@ -202,10 +202,10 @@ class ShotGenEncoder(nn.Module):
         embedded_player_area = F.relu(self.player_area_embedding(player_area))
         embedded_shot = self.shot_embedding(input_shot)
         embedded_player = self.player_embedding(input_player)
-        
+
         # 方程式1 ############################
-        h_a = embedded_area + embedded_player_area + embedded_player
-        h_s = embedded_shot + embedded_player_area + embedded_player
+        h_a = embedded_area + embedded_player_area * 0.1 + embedded_player
+        h_s = embedded_shot + embedded_player_area * 0.1 + embedded_player
 
         # split player
         h_a_A = h_a[:, ::2]
