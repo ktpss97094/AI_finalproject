@@ -77,7 +77,7 @@ class ShotGenDecoder(nn.Module):
 
         # (32, 67, 2)
         area = torch.cat((input_x.unsqueeze(-1), input_y.unsqueeze(-1)), dim=-1).float()
-        player_area = torch.cat((input_player_location_x.unsqueeze(-1), input_player_location_y.unsqueeze(-1)), dim=-1).float()
+        #player_area = torch.cat((input_player_location_x.unsqueeze(-1), input_player_location_y.unsqueeze(-1)), dim=-1).float()
 
         # split player only for masking
         mask_A = input_shot[:, ::2]
@@ -89,7 +89,7 @@ class ShotGenDecoder(nn.Module):
         trg_global_B_mask = get_pad_mask(mask_B) & get_subsequent_mask(mask_B)
         
         embedded_area = F.relu(self.area_embedding(area))  # (32, 67, 32)
-        embedded_player_area = F.relu(self.player_area_embedding(player_area))
+        #embedded_player_area = F.relu(self.player_area_embedding(player_area))
         embedded_shot = self.shot_embedding(input_shot)  # (32, 67, 32)
         embedded_player = self.player_embedding(input_player)  # (32, 67, 32)
 
@@ -196,10 +196,10 @@ class ShotGenEncoder(nn.Module):
         enc_slf_attn_list = []
 
         area = torch.cat((input_x.unsqueeze(-1), input_y.unsqueeze(-1)), dim=-1).float()
-        player_area = torch.cat((input_player_location_x.unsqueeze(-1), input_player_location_y.unsqueeze(-1)), dim=-1).float()
+        #player_area = torch.cat((input_player_location_x.unsqueeze(-1), input_player_location_y.unsqueeze(-1)), dim=-1).float()
 
         embedded_area = F.relu(self.area_embedding(area))
-        embedded_player_area = F.relu(self.player_area_embedding(player_area))
+        #embedded_player_area = F.relu(self.player_area_embedding(player_area))
         embedded_shot = self.shot_embedding(input_shot)
         embedded_player = self.player_embedding(input_player)
 
@@ -207,8 +207,10 @@ class ShotGenEncoder(nn.Module):
         # print(embedded_player_area * 0.1)
         
         # 方程式1 ############################
-        h_a = embedded_area + embedded_player_area * 0.1 + embedded_player
-        h_s = embedded_shot + embedded_player_area * 0.1 + embedded_player
+        h_a = embedded_area + embedded_player
+        h_s = embedded_shot + embedded_player
+        # h_a = embedded_area + embedded_player_area * 0.1 + embedded_player
+        # h_s = embedded_shot + embedded_player_area * 0.1 + embedded_player
 
         # split player
         h_a_A = h_a[:, ::2]

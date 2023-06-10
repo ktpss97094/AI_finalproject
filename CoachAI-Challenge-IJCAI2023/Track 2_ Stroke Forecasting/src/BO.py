@@ -301,5 +301,5 @@ if __name__ == "__main__":
     shuttle_optimizer.maximize(n_iter = n_iter)
 
     print("best hyperpara: \n", shuttle_optimizer.max) 
-    # 最後要跑train.py的時候把除了 lr 以外的都取整數 
+    # 最後要跑train.py的時候把除了 lr 以外的都取整數
     # shuttle_optimizer.max 最好的hyperparameter
