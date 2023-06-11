@@ -23,16 +23,18 @@ pip install -r requirements.txt
 
 ### Initialize Hyperparameters
 
-我們設定的hyperparameters為....**(TODO)**
-若要產生其他的hyperparameters值，可使用BO.py產生超參數:
+我們設定的hyperparameters為 area_num、 batch_size、 dim (shot_dim、area_dim、player_dim、encode_dim)、 epochs、 lr 
+若要產生更改hyperparameters的搜索範圍，可以直接修改[]中的值 (format: [最低: 最高])，
+可使用BO.py產生超參數:
 
 ```
 python BO.py niter
 ```
 
-其中參數niter為要iterate的次數，通常設為5。
+其中參數niter為要iterate的次數，但他最後會跑 niter + 5次。
+ex.  python BO.py 5 -> 會跑 5+5 = 10 iter
 
-之後再將BO.py輸出的optimize hyperparameters值寫入train.py即可。
+之後再將BO.py輸出的optimize hyperparameters值寫入train.py即可(但除了 lr 以外都要取整數)。
 
 ### Train
 
@@ -57,4 +59,5 @@ python evaluation.py
 
 ## Experiment Results
 
-score為2.6901113591。
+score為	2.6639063255。
+![image](https://github.com/ktpss97094/AI_finalproject/assets/122603032/63082eb6-5016-43ff-aa21-b50bb4f754c3)
