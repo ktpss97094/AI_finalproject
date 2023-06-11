@@ -273,7 +273,7 @@ def BO_function(batch_size, lr, epochs, area_num, dim):
     train(batch_size, lr, epochs, area_num, dim)
     generate()
     tmp = evaluation()
-    score = (1/tmp.compute_metrics()) * 100
+    score = round((1/tmp.compute_metrics()), 5) * 100
     # 因為越小越好 所以取倒數
     # 怕因為精度問題 所以 * 100
 
@@ -289,7 +289,7 @@ if __name__ == "__main__":
         # 有想要再自己加參數也可以 那 BO_function 跟 train() 也要一起改
 
         'batch_size': [32, 128],
-        'lr': [1e-6, 1e-3],
+        'lr': [1e-6, 1e-4],
         'epochs': [128, 256],
         'area_num': [5, 10], # 一定要>5
         'dim': [32, 128]
