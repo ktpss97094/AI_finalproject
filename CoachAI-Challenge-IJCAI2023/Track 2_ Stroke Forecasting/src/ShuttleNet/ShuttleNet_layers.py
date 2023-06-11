@@ -10,6 +10,9 @@ class EncoderLayer(nn.Module):
         super().__init__()
         self.disentangled_attention = TypeAreaMultiHeadAttention(n_head, d_model, d_k, d_v, dropout=dropout)
         
+        '''
+        Convolutional Unit
+        '''
         self.dim3_Conv_F1_1 = nn.Conv1d(3, 64, 3, dilation=1, padding='same').to('cuda')
         self.dim3_Conv_F1_2 = nn.Conv1d(3, 64, 3, dilation=1, padding='same').to('cuda')
         self.dim2_Conv_F1_1 = nn.Conv1d(2, 64, 3, dilation=1, padding='same').to('cuda')
