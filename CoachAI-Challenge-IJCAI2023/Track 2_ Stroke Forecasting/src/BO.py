@@ -289,7 +289,7 @@ if __name__ == "__main__":
         # 有想要再自己加參數也可以 那 BO_function 跟 train() 也要一起改
 
         'batch_size': [32, 128],
-        'lr': [1e-6, 1e-4],
+        'lr': [1e-5, 1e-3],
         'epochs': [128, 256],
         'area_num': [5, 10], # 一定要>5
         'dim': [32, 128]
