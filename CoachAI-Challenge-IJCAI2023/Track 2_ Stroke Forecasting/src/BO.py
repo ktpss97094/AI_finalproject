@@ -288,8 +288,6 @@ if __name__ == "__main__":
         # [最低範圍, 最高範圍] 可以自己改範圍
         # 有想要再自己加參數也可以 那 BO_function 跟 train() 也要一起改
         
-        #'max_ball_round': [69, 70],
-        #'encode_length': [3, 4],
         'batch_size': [32, 128],
         'lr': [1e-7, 1e-4],
         'epochs': [128, 256],
