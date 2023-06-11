@@ -195,34 +195,34 @@ class ShotGenEncoder(nn.Module):
     def forward(self, input_shot, input_x, input_y, input_player, input_player_location_x, input_player_location_y, src_mask=None, return_attns=False):
         enc_slf_attn_list = []
 
-        area = torch.cat((input_x.unsqueeze(-1), input_y.unsqueeze(-1)), dim=-1).float()
+        area = torch.cat((input_x.unsqueeze(-1), input_y.unsqueeze(-1)), dim=-1).float()  # (32, 3, 2)
         #player_area = torch.cat((input_player_location_x.unsqueeze(-1), input_player_location_y.unsqueeze(-1)), dim=-1).float()
 
-        embedded_area = F.relu(self.area_embedding(area))
+        embedded_area = F.relu(self.area_embedding(area))  # (32, 3, 32)
         #embedded_player_area = F.relu(self.player_area_embedding(player_area))
-        embedded_shot = self.shot_embedding(input_shot)
-        embedded_player = self.player_embedding(input_player)
+        embedded_shot = self.shot_embedding(input_shot)  # (32, 3, 32)
+        embedded_player = self.player_embedding(input_player)  # (32, 3, 32)
         
-        # 方程式1 ############################
-        h_a = embedded_area + embedded_player
-        h_s = embedded_shot + embedded_player
+        # 方程式1
+        h_a = embedded_area + embedded_player  # (32, 3, 32)
+        h_s = embedded_shot + embedded_player  # (32, 3, 32)
         # h_a = embedded_area + embedded_player_area * 0.001 + embedded_player
         # h_s = embedded_shot + embedded_player_area * 0.001 + embedded_player
 
         # split player
-        h_a_A = h_a[:, ::2]
-        h_a_B = h_a[:, 1::2]
-        h_s_A = h_s[:, ::2]
-        h_s_B = h_s[:, 1::2]
+        h_a_A = h_a[:, ::2]  # (32, 2, 32)
+        h_a_B = h_a[:, 1::2]  # (32, 1, 32)
+        h_s_A = h_s[:, ::2]  # (32, 2, 32)
+        h_s_B = h_s[:, 1::2]  # (32, 1, 32)
 
         # local
-        encode_output_area = self.dropout(self.position_embedding(h_a, mode='encode'))
-        encode_output_shot = self.dropout(self.position_embedding(h_s, mode='encode'))
+        encode_output_area = self.dropout(self.position_embedding(h_a, mode='encode'))  # (32, 3, 32)
+        encode_output_shot = self.dropout(self.position_embedding(h_s, mode='encode'))  # (32, 3, 32)
         # global
-        encode_output_area_A = self.dropout(self.position_embedding(h_a_A, mode='encode'))
-        encode_output_area_B = self.dropout(self.position_embedding(h_a_B, mode='encode'))
-        encode_output_shot_A = self.dropout(self.position_embedding(h_s_A, mode='encode'))
-        encode_output_shot_B = self.dropout(self.position_embedding(h_s_B, mode='encode'))
+        encode_output_area_A = self.dropout(self.position_embedding(h_a_A, mode='encode'))  # (32, 2, 32)
+        encode_output_area_B = self.dropout(self.position_embedding(h_a_B, mode='encode'))  # (32, 1, 32)
+        encode_output_shot_A = self.dropout(self.position_embedding(h_s_A, mode='encode'))  # (32, 2, 32)
+        encode_output_shot_B = self.dropout(self.position_embedding(h_s_B, mode='encode'))  # (32, 1, 32)
 
         encode_global_A, enc_slf_attn_A = self.global_layer(encode_output_area_A, encode_output_shot_A, slf_attn_mask=src_mask)
         encode_global_B, enc_slf_attn_B = self.global_layer(encode_output_area_B, encode_output_shot_B, slf_attn_mask=src_mask)
