@@ -21,6 +21,12 @@ pip install -r requirements.txt
 
 ## Usage
 
+請先進入程式所在的資料夾
+
+```
+cd './CoachAI-Challenge-IJCAI2023/Track 2_ Stroke Forecasting/src/'
+```
+
 ### Hyperparameters
 
 我們設定要調的參數為: area_num、 batch_size、 dim (shot_dim、area_dim、player_dim、encode_dim 這4項會相等)、 epochs、 lr <br>
