@@ -23,8 +23,8 @@ pip install -r requirements.txt
 
 ### Hyperparameters
 
-我們設定要調的參數為: area_num、 batch_size、 dim (shot_dim、area_dim、player_dim、encode_dim 這4項會相等)、 epochs、 lr 
-若要更改hyperparameters的搜索範圍，可以直接修改[]中的值 (format: [最低: 最高])，
+我們設定要調的參數為: area_num、 batch_size、 dim (shot_dim、area_dim、player_dim、encode_dim 這4項會相等)、 epochs、 lr <br>
+若要更改hyperparameters的搜索範圍，可以直接修改[]中的值 (format: [最低: 最高]) <br>
 可使用BO.py產生超參數:
 
 ```
