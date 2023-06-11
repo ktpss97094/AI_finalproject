@@ -21,10 +21,10 @@ pip install -r requirements.txt
 
 ## Usage
 
-### Initialize Hyperparameters
+### Hyperparameters
 
-我們設定要調的參數為: area_num、 batch_size、 dim (shot_dim、area_dim、player_dim、encode_dim)、 epochs、 lr 
-若要產生更改hyperparameters的搜索範圍，可以直接修改[]中的值 (format: [最低: 最高])，
+我們設定要調的參數為: area_num、 batch_size、 dim (shot_dim、area_dim、player_dim、encode_dim 這4項會相等)、 epochs、 lr 
+若要更改hyperparameters的搜索範圍，可以直接修改[]中的值 (format: [最低: 最高])，
 可使用BO.py產生超參數:
 
 ```
@@ -34,15 +34,15 @@ python BO.py niter
 其中參數niter為要iterate的次數，但他最後會跑 niter + 5次。
 ex.  python BO.py 5 -> 會跑 5+5 = 10 iter
 
-之後再將BO.py輸出的optimize hyperparameters值寫入train.py即可(但除了 lr 以外都要取整數)。
+之後再將BO.py輸出的optimize hyperparameters值寫入train.py即可 (note: 除了 lr 以外都要取整數)。
 
 ### Train
 
 ```
-python train.py --output_folder_name ".\model\" --model_type ShuttleNet --encode_length encode_length --seed_value seed_value
+python train.py --model_type 'ShuttleNet' --output_folder_name './model' --area_num area_num  --batch_size batch_size --area_dim area_dim  --player_dim player_dim --encode_dim encode_dim --shot_dim shot_dim --epochs epochs  --lr lr
 ```
 
-其中參數encode_length、seed_value填入hyperparameter值。
+ex. python train.py --model_type 'ShuttleNet' --output_folder_name './model' --area_num 5  --batch_size 75 --area_dim 50  --player_dim 50 --encode_dim 50 --shot_dim 50 --epochs 139  --lr 0.00032233700746945427
 
 ### Generate Predictions
 
