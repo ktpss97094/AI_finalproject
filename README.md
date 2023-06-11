@@ -47,13 +47,13 @@ ex. python train.py --model_type 'ShuttleNet' --output_folder_name './model' --a
 ### Generate Predictions
 
 ```
-python generator.py .\model
+python generator.py ./model
 ```
 
 ### Compute Evaluation Metric
 
 ```
-mv .\model\prediction.csv ..\data\prediction.csv
+mv ./model/prediction.csv ../data/prediction.csv
 python evaluation.py
 ```
 
