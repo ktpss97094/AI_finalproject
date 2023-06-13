@@ -50,6 +50,8 @@ python train.py --model_type 'ShuttleNet' --output_folder_name './model' --area_
 
 ex. python train.py --model_type 'ShuttleNet' --output_folder_name './model' --area_num 5  --batch_size 75 --area_dim 50  --player_dim 50 --encode_dim 50 --shot_dim 50 --epochs 139  --lr 0.00032233700746945427
 
+** the hyperparameter we set are: --area_num 5  --batch_size 80 --area_dim 80  --player_dim 80 --encode_dim 80 --shot_dim 80 --epochs 239  --lr 0.000241
+
 ### Generate Predictions
 
 ```
