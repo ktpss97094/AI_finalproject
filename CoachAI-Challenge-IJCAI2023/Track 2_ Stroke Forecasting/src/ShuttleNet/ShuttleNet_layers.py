@@ -30,18 +30,20 @@ class EncoderLayer(nn.Module):
         self.pos_ffn = PositionwiseFeedForward(d_model, d_inner, dropout=dropout)
 
     def forward(self, encode_area, encode_shot, slf_attn_mask=None):
-        encode_output, enc_slf_attn, enc_disentangled_weight = self.disentangled_attention(encode_area, encode_area, encode_area, encode_shot, encode_shot, encode_shot, mask=slf_attn_mask)  # (32, 2, 32)
+        encode_output, enc_slf_attn, enc_disentangled_weight = self.disentangled_attention(encode_area, encode_area, encode_area, encode_shot, encode_shot, encode_shot, mask=slf_attn_mask)  # (32, [1或2或3], 32)
         
+        x = encode_output
+
         left_1, right_1 = None, None
-        if encode_output.shape[1] == 3:
-            left_1 = nn.Tanh()(self.dim3_Conv_F1_1(encode_output))
-            right_1 = nn.Sigmoid()(self.dim3_Conv_F1_2(encode_output))
-        elif encode_output.shape[1] == 2:
-            left_1 = nn.Tanh()(self.dim2_Conv_F1_1(encode_output))
-            right_1 = nn.Sigmoid()(self.dim2_Conv_F1_2(encode_output))
-        elif encode_output.shape[1] == 1:
-            left_1 = nn.Tanh()(self.dim1_Conv_F1_1(encode_output))
-            right_1 = nn.Sigmoid()(self.dim1_Conv_F1_2(encode_output))
+        if x.shape[1] == 3:
+            left_1 = nn.Tanh()(self.dim3_Conv_F1_1(x))
+            right_1 = nn.Sigmoid()(self.dim3_Conv_F1_2(x))
+        elif x.shape[1] == 2:
+            left_1 = nn.Tanh()(self.dim2_Conv_F1_1(x))
+            right_1 = nn.Sigmoid()(self.dim2_Conv_F1_2(x))
+        elif x.shape[1] == 1:
+            left_1 = nn.Tanh()(self.dim1_Conv_F1_1(x))
+            right_1 = nn.Sigmoid()(self.dim1_Conv_F1_2(x))
         else:
             raise NotImplementedError('encode_output.shape[1]非3或2或1')
         F1 = self.BatchNorm_F1(torch.mul(left_1, right_1))
@@ -54,9 +56,9 @@ class EncoderLayer(nn.Module):
         right_3 = nn.Sigmoid()(self.Conv_F3_2(F2))
         F3 = self.BatchNorm_F3(torch.mul(left_3, right_3))
 
-        encode_output = torch.cat((F1, F2, F3, encode_output), dim=1)
+        y = torch.cat((F1, F2, F3, x), dim=1)
 
-        encode_output = self.pos_ffn(encode_output)  # (32, 2, 32)
+        encode_output = self.pos_ffn(y)  # (32, 2, 32)
         return encode_output, enc_slf_attn
 
 
